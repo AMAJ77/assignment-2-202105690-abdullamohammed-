@@ -1,0 +1,211 @@
+from datetime import datetime
+from ebook import EBook
+from catalog import Catalog
+from customer import Customer
+
+def test_1(catalog):
+    # Display the catalog before adding any e-books
+    print("Catalog before adding e-books:")
+    print(catalog.display_catalog())
+    # Create a new EBook
+    ebook1 = EBook(
+        isbn="978-3-16-148410-0",
+        title="Learning Python",
+        author="Mark Lutz",
+        publication_date=datetime(2023, 1, 15),
+        genre="Programming",
+        price=39.99
+    )
+    # Add the EBook to the catalog
+    catalog.add_ebook(ebook1)
+    # Display the catalog after adding the e-book
+    print("\nCatalog after adding the e-book:")
+    print(catalog.display_catalog())
+
+def test_2(catalog):
+    # Attempt to modify an existing e-book
+    print("Catalog before modifying the e-book:")
+    print(catalog.display_catalog())
+    isbn_to_modify = "978-3-16-148410-0"
+    # Retrieve the e-book from the catalog
+    ebook_to_modify = catalog.find_ebook_by_isbn(isbn_to_modify)
+    if ebook_to_modify:
+        # Modify the e-book details
+        ebook_to_modify.set_title("Learning Python, 2nd Edition") # Update title
+        ebook_to_modify.set_price(49.99) # Update price
+        # Display the catalog after modifying the e-book
+        print("\nCatalog after modifying the e-book:")
+        print(catalog.display_catalog())
+    else:
+        print(f"No e-book found with ISBN: {isbn_to_modify}")
+
+def test_3(catalog):
+    # Display the catalog before removing the e-book
+    print("Catalog before removing the e-book:")
+    print(catalog.display_catalog())
+    # the ISBN of the e-book to remove
+    isbn_to_remove = "978-3-16-148410-0"
+    # Attempt to remove the e-book from the catalog
+    removal_successful = catalog.remove_ebook_by_isbn(isbn_to_remove)
+    # Display the catalog after removing the e-book
+    print("\nCatalog after removing the e-book:")
+    print(catalog.display_catalog())
+
+def test_4(customers):
+    # Display current customers before adding a new account
+    print("Current customers before adding a new account:")
+    for customer in customers:
+        print(customer)
+    # Create a new customer account
+    new_customer = Customer(customer_id="cust-101", name="Sarah",
+                            contact_info="sarah@hotmail.com", loyalty_member=False)
+    # Add the new customer account to the list of customers
+    customers.append(new_customer)
+    # Display a message indicating that the new account has been added
+    print(f"\nCustomer account for {new_customer.get_name()} has been added.")
+    # Display the updated list of customers
+    print("\nCurrent customers after adding the new account:")
+    for customer in customers:
+        print(customer)
+
+def test_5(customers):
+    # Display current customers before modification
+    print("Current customers before modification:")
+    for customer in customers:
+        print(customer)
+    if customers:
+        customer_to_modify = customers[0]
+        print(f"\nModifying customer account for {customer_to_modify.get_name()}...")
+        customer_to_modify.set_loyalty(True)
+        # Display updated customer details
+        print("\nUpdated customer account details:")
+        print(customer_to_modify)
+    else:
+        print("No customers to modify.")
+
+def test_6(customers, catalog):
+    customer = customers[0]
+    print(f"Customer: {customer.get_name()} ID:({customer.get_id()})")
+    print(f"Shopping cart before adding ebook(s):\n{customer.get_shopping_cart()}")
+    for isbn in ["978-3-16-158410-1", "3-16-158410-1"]:
+        print(f"\nAdding ebook with ISBN: {isbn} to cart...")
+        ebook = catalog.find_ebook_by_isbn(isbn)
+        if ebook:
+            customer.add_to_cart(ebook)
+            print("Added successfully.")
+        else:
+            print("Ebook not in catalog.")
+    print(f"Shopping cart after adding ebook(s):\n{customer.get_shopping_cart()}")
+
+def test_7(customers):
+    customer = customers[0]
+    print(f"Customer: {customer.get_name()} ID:({customer.get_id()})")
+    print(f"Shopping cart:\n{customer.get_shopping_cart()}")
+    print("\nChecking out.....")
+    order = customer.checkout()
+    print(f"\nAfter Checkout:\n{order}\n{customer.get_shopping_cart()}")
+
+def test_8(customers, catalog):
+    print("Test for loyal customer.")
+    customer = customers[0]
+    print(f"Customer: {customer.get_name()} ID:({customer.get_id()})")
+    customer.set_loyalty(True)
+    ebook = catalog.find_ebook_by_isbn("978-3-16-158410-1")
+    customer.add_to_cart(ebook)
+    order = customer.checkout()
+    print(order)
+    print("Test for bulk purchase.")
+    customer = customers[0]
+    print(f"Customer: {customer.get_name()} ID:({customer.get_id()})")
+    ebook = catalog.find_ebook_by_isbn("978-3-16-158410-1")
+    customer.add_to_cart(ebook, 90)
+    order = customer.checkout()
+    print(order)
+    print("Test for non-loyal non-bulk purchase.")
+    customer = customers[0]
+    print(f"Customer: {customer.get_name()} ID:({customer.get_id()})")
+    customer.set_loyalty(False)
+    ebook = catalog.find_ebook_by_isbn("978-3-16-158410-1")
+    customer.add_to_cart(ebook, 1)
+    order = customer.checkout()
+    print(order)
+
+def test_9(customers):
+    print("Current customers:")
+    for customer in customers:
+        print(customer)
+    print("\nTrying to remove customers with IDs {'cust-100', 'cust-101'}")
+    for id in ["cust-100", "cust-101"]:
+        done = False
+        for customer in customers:
+            if customer.get_id() == id:
+                customers.remove(customer)
+                done = True
+                print(f"Customer with ID: {id} removed.")
+        if not done:
+            print(f"Customer with ID: {id} is not registered.")
+    print("Customers Left:")
+    for customer in customers:
+        print(customer)
+
+def test_10(catalog):
+    print("Catalog before:")
+    print(catalog.display_catalog())
+    isbns_to_remove = ["978-3-16-148410-0", "978-3-16-158410-1", "978-3-16-148410-12"]
+    print(f"\nTrying to remove ebooks with ISBNs: {isbns_to_remove}")
+    for isbn in isbns_to_remove:
+        catalog.remove_ebook_by_isbn(isbn)
+    # Display the catalog after
+    print("\nCatalog after:")
+    print(catalog.display_catalog())
+
+def main():
+    # Create an instance of Catalog and customer accounts
+    catalog = Catalog()
+    customers = []
+    break_str = "\n--------------------------------------------------------------\n"
+    # Test Case 1: Adding a new e-book to the catalog
+    print(f"{break_str}Test: Adding e-books to the catalog and displaying catalog.{break_str}")
+    test_1(catalog)
+    # Test Case 2: Modifying an e-book in the catalog
+    print(f"\n{break_str}Test: Modifying an e-book in the catalog.{break_str}")
+    test_2(catalog)
+    catalog.add_ebook(
+        EBook(
+            isbn="978-3-16-158410-1",
+            title="Learning Java",
+            author="Mark Twin",
+            publication_date=datetime(2010, 1, 15),
+            genre="Programming",
+            price=99.99
+        )
+    )
+    # Test Case 3: Removing an e-book from the catalog
+    print(f"\n{break_str}Test: Removing an e-book from the catalog.{break_str}")
+    test_3(catalog)
+    # Test Case 4: Adding customer account and displaying details
+    print(f"\n{break_str}Test: Adding a customer account and displaying details.{break_str}")
+    test_4(customers)
+    # Test Case 5: Modifying customer information
+    print(f"\n{break_str}Test: Modifying customer account information.{break_str}")
+    test_5(customers)
+    # Test Case 6: Adding e-books to the shopping cart
+    print(f"\n{break_str}Test: Adding e-books to the shopping cart.{break_str}")
+    test_6(customers, catalog)
+    # Test Case 7: Checkout to generate an order and verify invoice generation
+    print(f"\n{break_str}Test: Checking out to generate an order and invoice.{break_str}")
+    test_7(customers)
+    # Test Case 8: Applying discounts for loyalty members and bulk purchases
+    print(f"\n{break_str}Test: Verifying discounts for loyalty member and bulk purchases.{break_str}")
+    test_8(customers, catalog)
+    customers.append(Customer(customer_id="cust-102", name="Joseph",
+                              contact_info="j@hotmail.com", loyalty_member=True))
+    # Test Case 9: Remove Customer account using ID
+    print(f"\n{break_str}Test: Removing Customer Account using ID{break_str}")
+    test_9(customers)
+    # Test Case 10: Removing an e-book in the catalog
+    print(f"\n{break_str}Test: Removing an e-book in the catalog.{break_str}")
+    test_10(catalog)
+
+if _name_ == "_main_":
+    main()
