@@ -1,0 +1,462 @@
+class Customer:
+    """Represents a customer with personal details and loyalty status."""
+    
+    def _init_(self, customer_id, name, contact_info, loyalty_member=False):
+        self.customer_id = customer_id
+        self.name = name
+        self.contact_info = contact_info
+        self.loyalty_member = loyalty_member
+        self.shopping_cart = ShoppingCart()
+
+    # Getters
+    def get_name(self):
+        return self.name
+
+    def get_id(self):
+        return self.customer_id
+
+    def get_shopping_cart(self):
+        return self.shopping_cart
+
+    def get_contact_info(self):
+        return self.contact_info
+
+    def is_loyalty_member(self):
+        return self.loyalty_member
+
+    # Setters
+    def set_loyalty(self, loyalty):
+        self.loyalty_member = loyalty
+
+    def set_name(self, name):
+        self.name = name
+
+    def set_contact_info(self, contact_info):
+        self.contact_info = contact_info
+
+    def set_id(self, id):
+        self.customer_id = id
+
+    def set_shopping_cart(self, shopping_cart):
+        self.shopping_cart = shopping_cart
+
+    def add_to_cart(self, ebook, quantity=1):
+        """Adds an e-book to the shopping cart."""
+        self.shopping_cart.add_item(ebook, quantity)
+
+    def has_book_added(self, isbn):
+        if self.shopping_cart.find_book_by_isbn(isbn):
+            return True
+        else:
+            return False
+
+    def modify_customer(self, customer_id, new_customer):
+        """
+        Modifies the customer's details if the provided customer ID matches.
+        """
+        if self.customer_id == new_customer.customer_id:
+            self.name = new_customer.name
+            self.contact_info = new_customer.contact_info
+            self.loyalty_member = new_customer.loyalty_member
+            print(f"Customer with ID {self.customer_id} has been updated.")
+        else:
+            print(f"Customer ID mismatch: Cannot update customer with ID {new_customer.customer_id}.")
+
+    def checkout(self):
+        """Creates an order from items in the shopping cart."""
+        if not self.shopping_cart.get_items():
+            print("Shopping cart is empty. Cannot proceed to checkout.")
+            return None
+        order = Order(self.shopping_cart, self, datetime.now())
+        self.shopping_cart.clear_cart()
+        return order
+
+    def _str_(self):
+        loyalty_status = "Yes" if self.loyalty_member else "No"
+        return (
+            f"Customer Details:\n"
+            f" ID: {self.customer_id}\n"
+            f" Name: {self.name}\n"
+            f" Contact Info: {self.contact_info}\n"
+            f" Loyalty Member: {loyalty_status}"
+        )
+
+class Catalog:
+    """Manages a collection of available e-books."""
+
+    def _init_(self):
+        self.ebooks = []
+
+    def set_ebooks(self, ebooks):
+        """Setter for ebooks list"""
+        self.ebooks = ebooks
+
+    def get_ebooks(self):
+        """Getter for ebooks"""
+        return self.ebooks
+
+    def add_ebook(self, ebook):
+        """Adds an EBook to the catalog."""
+        if isinstance(ebook, EBook):
+            self.ebooks.append(ebook)
+
+    def remove_ebook_by_isbn(self, isbn):
+        """Removes an EBook from the catalog based on its ISBN."""
+        for ebook in self.ebooks:
+            if ebook.get_isbn() == isbn:
+                self.ebooks.remove(ebook)
+                print(f"EBook with ISBN {isbn} has been removed.")
+                return
+        print(f"No EBook found with ISBN {isbn}.")
+
+    def modify_ebook(self, isbn, new_ebook):
+        """
+        Modifies an existing e-book in the catalog.
+        """
+        for index, ebook in enumerate(self.ebooks):
+            if ebook.get_isbn() == isbn:
+                if isinstance(new_ebook, EBook):
+                    self.ebooks[index] = new_ebook
+                    print(f"EBook with ISBN {isbn} has been updated.")
+                else:
+                    print("Provided new_ebook is not a valid EBook instance.")
+                return
+        print(f"No e-book found with ISBN {isbn}.")
+
+    def ebook_exists(self, isbn):
+        """Checks if an EBook with the given ISBN exists in the catalog."""
+        return any(ebook.get_isbn() == isbn for ebook in self.ebooks)
+
+    def find_ebook_by_isbn(self, isbn):
+        """Finds and returns an EBook by its ISBN, or None if not found."""
+        for ebook in self.ebooks:
+            if ebook.get_isbn() == isbn:
+                return ebook
+        return None
+
+    def display_catalog(self):
+        """Displays all e-books in the catalog."""
+        if not self.ebooks:
+            return "Catalog is empty."
+        print(self)
+
+    def _str_(self):
+        catalog_str = (
+            f"*************\n"
+            f"\t\tE-Book Catalog\n"
+            f"*************\n"
+        )
+        for idx, ebook in enumerate(self.ebooks, start=1):
+            catalog_str += f"\nE-Book {idx}:\n{ebook}\n"
+            catalog_str += "\t----------------------\n"
+            catalog_str += f"*************\n"
+        return catalog_str
+
+class EBook:
+    """Represents an E-book with ISBN, title, author, publication date, genre, and price."""
+
+    def _init_(self, isbn, title, author, publication_date, genre, price):
+        self.isbn = isbn
+        self.title = title
+        self.author = author
+        self.publication_date = publication_date
+        self.genre = genre
+        self.price = price
+
+    def get_isbn(self):
+        """Returns the ISBN of the e-book."""
+        return self.isbn
+
+    def get_title(self):
+        """Returns the title of the e-book."""
+        return self.title
+
+    def set_title(self, title):
+        """Sets the title of the e-book."""
+        self.title = title
+
+    def get_author(self):
+        """Returns the author of the e-book."""
+        return self.author
+
+    def set_author(self, author):
+        """Sets the author of the e-book."""
+        self.author = author
+
+    def get_publication_date(self):
+        """Returns the publication date of the e-book."""
+        return self.publication_date
+
+    def set_publication_date(self, publication_date):
+        """Sets the publication date of the e-book."""
+        self.publication_date = publication_date
+
+    def get_genre(self):
+        """Returns the genre of the e-book."""
+        return self.genre
+
+    def set_genre(self, genre):
+        """Sets the genre of the e-book."""
+        self.genre = genre
+
+    def get_price(self):
+        """Returns the price of the e-book."""
+        return self.price
+
+    def set_price(self, price):
+        """Sets the price of the e-book."""
+        self.price = price
+
+    def _str_(self):
+        """String representation of the e-book details."""
+        return (f"ISBN: {self.isbn}\n"
+                f"Title: {self.title}\n"
+                f"Author: {self.author}\n"
+                f"Published: {self.publication_date.date()}\n"
+                f"Genre: {self.genre}\n"
+                f"Price: ${self.price:.2f}")
+
+class CartItem:
+    """Represents an item in the shopping cart."""
+
+    def _init_(self, ebook, quantity):
+        if isinstance(ebook, EBook):
+            self.__ebook = ebook
+            self.__quantity = quantity
+        else:
+            print("ebook must be an instance of EBook. Item not created.")
+
+    def get_ebook(self):
+        return self.__ebook
+
+    def get_quantity(self):
+        return self.__quantity
+
+    def set_ebook(self, ebook):
+        """Sets a new e-book for the cart item."""
+        if isinstance(ebook, EBook):
+            self.__ebook = ebook
+        else:
+            print("ebook must be an instance of EBook")
+
+    def set_quantity(self, quantity):
+        """Sets a new quantity for the cart item."""
+        if quantity > 0:
+            self.__quantity = quantity
+        else:
+            print("Quantity must be greater than 0.")
+
+    def _str_(self):
+        return (
+            f"{self.__ebook}"
+            f"\nQuantity: {self.__quantity}"
+            f"\nItem Total: ${self._ebook.get_price()} x {self.quantity} = ${self.ebook.get_price()*self._quantity:.2f}"
+        )
+
+class ShoppingCart:
+    """Represents a customer's shopping cart."""
+
+    def _init_(self):
+        self.items = []
+
+    def add_item(self, ebook, quantity):
+        """Adds an item to the cart."""
+        if quantity > 0:
+            self.items.append(CartItem(ebook, quantity))
+
+    def get_items(self):
+        """Getter for cart items"""
+        return self.items
+
+    def set_items(self, items):
+        """Setter for cart items"""
+        self.items = items
+
+    def clear_cart(self):
+        """Clears the cart after checkout."""
+        self.items = []
+
+    def find_book_by_isbn(self, isbn):
+        for item in self.items:
+            if item.get_ebook().get_isbn() == isbn:
+                return item.get_ebook()
+        return None
+
+    def update_item_quantity(self, ebook, quantity):
+        """Updates the quantity of an item in the cart, or removes it if quantity is zero or less."""
+        for item in self.items:
+            if item.get_ebook() == ebook:
+                if quantity > 0:
+                    item.set_quantity(quantity)
+                else:
+                    self.items.remove(item)
+                    print(f"Removed from cart due to zero or negative quantity.")
+                return
+        print("Item not found in cart.")
+
+    def _str_(self):
+        if not self.items:
+            return "Shopping Cart is empty."
+        cart_str = "\n-----------------------------\nShopping Cart Items:\n-----------------------------\n"
+        index = 1
+        for item in self.items:
+            cart_str += f"Item {index}:\n{item}\n"
+            cart_str += "-----------------------------\n"
+            index += 1
+        return cart_str
+
+class Order:
+    """Represents an order with items, discounts, and total amount."""
+
+    def _init_(self, shopping_cart, customer, order_date):
+        self.order_id = id(self)
+        self.items = shopping_cart.get_items()
+        self.order_date = order_date
+        self.total_amount = 0
+        for item in self.items:
+            self.total_amount += item.get_ebook().get_price() * item.get_quantity()
+        self.customer = customer
+        self.loyalty_member = self.customer.is_loyalty_member()
+        self.invoice = self.generate_invoice()
+
+    # Getters
+    def get_order_id(self):
+        return self.order_id
+
+    def get_items(self):
+        return self.items
+
+    def get_order_date(self):
+        return self.order_date
+
+    def get_total_amount(self):
+        return self.total_amount
+
+    def get_customer(self):
+        return self.customer
+
+    def is_loyalty_member(self):
+        return self.loyalty_member
+
+    def get_invoice(self):
+        return self.invoice
+
+    # Setters
+    def set_items(self, items):
+        self.items = items
+        self.total_amount = 0
+        for item in self.items:
+            self.total_amount += item.get_ebook().get_price() * item.get_quantity()
+        self.invoice = self.generate_invoice()
+
+    def set_order_date(self, order_date):
+        self.order_date = order_date
+
+    def set_customer(self, customer):
+        self.customer = customer
+        self.loyalty_member = self.customer.is_loyalty_member()
+        self.invoice = self.generate_invoice()
+
+    def generate_invoice(self):
+        """Generates an invoice for the order with discounts and VAT."""
+        return Invoice(self.items, self.total_amount, self.loyalty_member)
+
+    def _str_(self):
+        items_str = "\n\t--------------------\n".join(str(item) for item in self.items)
+        return (
+            f"*************\n"
+            f"\t\tOrder Details\n"
+            f"*************\n"
+            f" Order ID: {self.order_id}\n"
+            f" Order Date: {self.order_date}\n"
+            f" Total Amount: ${self.total_amount:.2f}\n"
+            f" Loyalty Member: {'Yes' if self.loyalty_member else 'No'}\n"
+            f"\t --------------------\n"
+            f" Items:\n{items_str}\n"
+            f"{self.invoice}"
+            f"*************\n"
+        )
+
+class Invoice:
+    """Represents an invoice with details, discounts, VAT, and final total."""
+    VAT_RATE = 0.08
+    BULK_DISCOUNT_THRESHOLD = 5
+    BULK_DISCOUNT_RATE = 0.20
+    LOYALTY_DISCOUNT_RATE = 0.10
+
+    def _init_(self, items, total_amount, loyalty_member):
+        self.items = items
+        self.total_amount = total_amount
+        self.loyalty_member = loyalty_member
+        self.discount = self.calculate_discount()
+        self.tax = self.calculate_tax()
+        self.final_total = self.total_amount - self.discount + self.tax
+
+    def get_items(self):
+        """Get the items of the invoice."""
+        return self.items
+
+    def set_items(self, value):
+        """Set the items of the invoice and recalculate totals."""
+        self.items = value
+        self.discount = self.calculate_discount()
+        self.tax = self.calculate_tax()
+        self.final_total = self.total_amount - self.discount + self.tax
+
+    def get_total_amount(self):
+        """Get the total amount of the invoice."""
+        return self.total_amount
+
+    def set_total_amount(self, value):
+        """Set the total amount of the invoice and recalculate final total."""
+        self.total_amount = value
+        self.final_total = self.total_amount - self.discount + self.tax
+
+    def get_loyalty_member(self):
+        """Get the loyalty membership status of the customer."""
+        return self.loyalty_member
+
+    def set_loyalty_member(self, value):
+        """Set the loyalty membership status and recalculate discount if necessary."""
+        self.loyalty_member = value
+        self.discount = self.calculate_discount()
+        self.final_total = self.total_amount - self.discount + self.tax
+
+    def get_discount(self):
+        """Get the discount applied to the invoice."""
+        return self.discount
+
+    def get_tax(self):
+        """Get the calculated tax for the invoice."""
+        return self.tax
+
+    def get_final_total(self):
+        """Get the final total amount after discount and tax."""
+        return self.final_total
+
+    def calculate_discount(self):
+        """Calculates the total discount based on loyalty and bulk purchase."""
+        discount = 0
+        total_quantity = sum(item.get_quantity() for item in self.items)
+        if total_quantity >= self.BULK_DISCOUNT_THRESHOLD:
+            bulk_discount = self.BULK_DISCOUNT_RATE * self.total_amount
+            discount += bulk_discount
+        if self.loyalty_member:
+            loyalty_discount = self.LOYALTY_DISCOUNT_RATE * self.total_amount
+            discount += loyalty_discount
+        return discount
+
+    def calculate_tax(self):
+        """Calculates VAT on the discounted total."""
+        discounted_total = self.total_amount - self.discount
+        return discounted_total * self.VAT_RATE
+
+    def _str_(self):
+        return (
+            f"\t-----------------\n"
+            f" Invoice Details:\n"
+            f" Total Amount: ${self.total_amount:.2f}\n"
+            f" Discount Applied: -${self.discount:.2f}\n"
+            f" VAT (8%): +${self.tax:.2f}\n"
+            f" Final Total: ${self.final_total:.2f}\n"
+        )
